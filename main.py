@@ -69,6 +69,52 @@ def summarize(start_date, end_date, category=None):
         cols = [d[0] for d in cur.description]
         return [dict(zip(cols, r)) for r in cur.fetchall()]
     
+@mcp.tool
+def delete_expense(id: int = 0, date: str = "", category: str = ""):
+    '''Delete expense(s) by ID, or by date and/or category filter.'''
+    with sqlite3.connect(DB_PATH) as c:
+        if id > 0:
+            cur = c.execute("DELETE FROM expenses WHERE id = ?", (id,))
+        elif date and category:
+            cur = c.execute("DELETE FROM expenses WHERE date = ? AND category = ?", (date, category))
+        elif date:
+            cur = c.execute("DELETE FROM expenses WHERE date = ?", (date,))
+        elif category:
+            cur = c.execute("DELETE FROM expenses WHERE category = ?", (category,))
+        else:
+            return {"status": "error", "message": "Provide id, date, or category to delete"}
+        return {"status": "ok", "deleted_count": cur.rowcount}
+
+@mcp.tool
+def update_expense(id: int, date: str = "", amount: float = 0, category: str = "", subcategory: str = "", note: str = ""):
+    '''Update an existing expense by ID. Only provided fields are updated.'''
+    with sqlite3.connect(DB_PATH) as c:
+        fields = []
+        values = []
+        if date:
+            fields.append("date = ?")
+            values.append(date)
+        if amount > 0:
+            fields.append("amount = ?")
+            values.append(amount)
+        if category:
+            fields.append("category = ?")
+            values.append(category)
+        if subcategory:
+            fields.append("subcategory = ?")
+            values.append(subcategory)
+        if note:
+            fields.append("note = ?")
+            values.append(note)
+        if not fields:
+            return {"status": "error", "message": "No fields to update"}
+        values.append(id)
+        cur = c.execute(f"UPDATE expenses SET {', '.join(fields)} WHERE id = ?", values)
+        if cur.rowcount == 0:
+            return {"status": "error", "message": f"No expense found with id {id}"}
+        return {"status": "ok", "updated_id": id}
+
+
 @mcp.resource("expense://categories", mime_type="application/json")
 def categories():
     # Read fresh each time so you can edit the file without restarting
