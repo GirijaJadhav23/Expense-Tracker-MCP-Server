@@ -7,6 +7,8 @@ A lightweight **Model Context Protocol (MCP)** server for tracking personal expe
 ## ✨ Features
 
 - **Add Expenses** — Log expenses with date, amount, category, subcategory, and optional notes
+- **Update Expenses** — Modify any field of an existing expense by ID
+- **Delete Expenses** — Remove expenses by ID, date, category, or a combination
 - **List Expenses** — Query expenses within any date range
 - **Summarize Expenses** — Get category-wise spending totals for a date range
 - **Category Resource** — Exposes a rich, hierarchical category taxonomy (20 categories, 100+ subcategories)
@@ -116,6 +118,46 @@ Add an expense of ₹500 for groceries on 2025-06-01
 
 ---
 
+### `update_expense`
+
+Update an existing expense by ID. Only the provided fields are modified.
+
+| Parameter     | Type   | Required | Description                          |
+|---------------|--------|----------|--------------------------------------|
+| `id`          | int    | ✅       | ID of the expense to update          |
+| `date`        | string | ❌       | New date (YYYY-MM-DD)                |
+| `amount`      | number | ❌       | New amount                           |
+| `category`    | string | ❌       | New category                         |
+| `subcategory` | string | ❌       | New subcategory                      |
+| `note`        | string | ❌       | New note                             |
+
+**Example:**
+```
+Update expense #3 to change the amount to ₹750
+```
+
+---
+
+### `delete_expense`
+
+Delete expense(s) by ID, or by date and/or category filter.
+
+| Parameter  | Type   | Required | Description                              |
+|------------|--------|----------|------------------------------------------|
+| `id`       | int    | ❌       | Delete a specific expense by ID          |
+| `date`     | string | ❌       | Delete all expenses on this date         |
+| `category` | string | ❌       | Delete all expenses in this category     |
+
+> **Note:** Provide at least one parameter. You can combine `date` and `category` for a more targeted delete.
+
+**Example:**
+```
+Delete expense #5
+Delete all transport expenses on 2025-06-01
+```
+
+---
+
 ### `list_expense`
 
 List all expense entries within an inclusive date range.
@@ -196,6 +238,30 @@ CREATE TABLE IF NOT EXISTS expenses (
 
 ---
 
+## 🤝 Contributing
 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
+---
 
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+## 🙏 Acknowledgments
+
+- [FastMCP](https://github.com/jlowin/fastmcp) — For the elegant MCP server framework
+- [Model Context Protocol](https://modelcontextprotocol.io/) — The protocol specification
+- [SQLite](https://www.sqlite.org/) — Lightweight embedded database
+
+---
+
+## 📬 Contact
+
+Feel free to open an issue or reach out if you have questions or suggestions!
